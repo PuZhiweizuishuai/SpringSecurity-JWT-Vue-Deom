@@ -1,7 +1,9 @@
 package com.bugaugaoshu.security.filter;
 
 import com.bugaugaoshu.security.config.TokenAuthenticationHelper;
+import com.bugaugaoshu.security.model.LoginDetails;
 import com.bugaugaoshu.security.model.User;
+import com.bugaugaoshu.security.service.VerifyCodeService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -26,15 +28,21 @@ import java.util.Map;
  * JWT 登陆过滤器
  */
 public class JwtLoginFilter extends AbstractAuthenticationProcessingFilter {
+    private final VerifyCodeService verifyCodeService;
+
     /**
      * @param defaultFilterProcessesUrl 默认要过滤的地址
      * @param authenticationManager 认证管理器，校验身份时会用到
      * */
-    public JwtLoginFilter(String defaultFilterProcessesUrl, AuthenticationManager authenticationManager) {
+    public JwtLoginFilter(String defaultFilterProcessesUrl, AuthenticationManager authenticationManager,
+                          VerifyCodeService verifyCodeService) {
         super(new AntPathRequestMatcher(defaultFilterProcessesUrl));
         // 为 AbstractAuthenticationProcessingFilter 中的属性赋值
         setAuthenticationManager(authenticationManager);
+        this.verifyCodeService = verifyCodeService;
     }
+
+
 
     /**
      * 提取用户账号密码进行验证
@@ -44,13 +52,17 @@ public class JwtLoginFilter extends AbstractAuthenticationProcessingFilter {
         // 获取 User 对象
         // readValue 第一个参数 输入流，第二个参数 要转换的对象
         User user = new ObjectMapper().readValue(httpServletRequest.getInputStream(), User.class);
-
-        // 进行登陆验证
-        return getAuthenticationManager().authenticate(new UsernamePasswordAuthenticationToken(
+        // 获取验证码 TODO 异常处理
+        verifyCodeService.verify(httpServletRequest.getSession().getId(), user.getVerifyCode());
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
                 user.getUsername(),
                 user.getPassword(),
                 user.getAuthorities()
-        ));
+        );
+        // 添加验证的附加信息
+        token.setDetails(new LoginDetails(user.getRememberMe(), user.getVerifyCode()));
+        // 进行登陆验证
+        return getAuthenticationManager().authenticate(token);
     }
 
     /**
@@ -78,6 +90,4 @@ public class JwtLoginFilter extends AbstractAuthenticationProcessingFilter {
         out.flush();
         out.close();
     }
-
-
 }

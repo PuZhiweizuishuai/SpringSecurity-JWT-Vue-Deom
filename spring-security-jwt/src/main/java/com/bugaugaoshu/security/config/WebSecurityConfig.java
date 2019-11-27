@@ -2,6 +2,7 @@ package com.bugaugaoshu.security.config;
 
 import com.bugaugaoshu.security.filter.JwtAuthenticationFilter;
 import com.bugaugaoshu.security.filter.JwtLoginFilter;
+import com.bugaugaoshu.security.service.VerifyCodeService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -26,6 +27,22 @@ import java.util.Collections;
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+    private final VerifyCodeService verifyCodeService;
+
+    /**
+     * 开放访问的请求
+     */
+    private final static String[] PERMIT_ALL_MAPPING = {
+            "/api/hello",
+            "/api/login",
+            "/api/image",
+            "/api/image/verify"
+    };
+
+    public WebSecurityConfig(VerifyCodeService verifyCodeService) {
+        this.verifyCodeService = verifyCodeService;
+    }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -33,7 +50,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     /**
      * 跨域配置
-     * */
+     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
@@ -49,7 +66,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .antMatchers("/api/hello", "/api/login")
+                .antMatchers(PERMIT_ALL_MAPPING)
                 .permitAll()
                 .antMatchers("/api/user")
                 // USER 和 ADMIN 都可以访问
@@ -62,7 +79,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 // 添加过滤器链,前一个参数过滤器， 后一个参数过滤器添加的地方
                 // 登陆过滤器
-                .addFilterBefore(new JwtLoginFilter("/api/login", authenticationManager()), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtLoginFilter("/api/login", authenticationManager(), verifyCodeService), UsernamePasswordAuthenticationFilter.class)
                 // 请求过滤器
                 .addFilterBefore(new JwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 // 开启跨域
@@ -71,7 +88,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 // 开启 csrf
                 .csrf()
                 // .disable();
-                .ignoringAntMatchers("/api/hello", "/api/login")
+                .ignoringAntMatchers(PERMIT_ALL_MAPPING)
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
     }
 

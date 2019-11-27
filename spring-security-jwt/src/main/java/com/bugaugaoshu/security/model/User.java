@@ -14,6 +14,7 @@ public class User implements UserDetails {
     private String username;
     private String password;
     private Boolean rememberMe;
+    private String verifyCode;
     private List<GrantedAuthority> authorities;
 
     public void setUsername(String username) {
@@ -34,6 +35,14 @@ public class User implements UserDetails {
 
     public void setRememberMe(Boolean rememberMe) {
         this.rememberMe = rememberMe;
+    }
+
+    public String getVerifyCode() {
+        return verifyCode;
+    }
+
+    public void setVerifyCode(String verifyCode) {
+        this.verifyCode = verifyCode;
     }
 
     @Override

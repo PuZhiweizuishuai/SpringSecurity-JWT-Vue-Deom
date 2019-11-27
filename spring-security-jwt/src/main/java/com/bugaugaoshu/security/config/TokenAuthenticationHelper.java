@@ -1,5 +1,8 @@
 package com.bugaugaoshu.security.config;
 
+import com.bugaugaoshu.security.damain.ResultDetails;
+import com.bugaugaoshu.security.model.LoginDetails;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -13,6 +16,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -22,7 +27,16 @@ import java.util.stream.Collectors;
  * create          2019-11-25 22:21
  */
 public class TokenAuthenticationHelper {
-    private static final long EXPIRATION_TIME = 1000 * 60 * 30;
+    /**
+     * 未设置记住我时 token 过期时间
+     * */
+    private static final long EXPIRATION_TIME = 7200000;
+
+    /**
+     * 记住我时 cookie token 过期时间
+     * */
+    private static final int COOKIE_EXPIRATION_TIME = 1296000;
+
     private static final String SECRET_KEY = "ThisIsASpringSecurityDemo";
     private static final String COOKIE_TOKEN = "COOKIE-TOKEN";
 
@@ -37,10 +51,14 @@ public class TokenAuthenticationHelper {
         authorities.forEach(authority -> {
             stringBuffer.append(authority.getAuthority()).append(",");
         });
-
-        System.out.println(authResult.getCredentials());
-        System.out.println(authResult.getDetails());
-        System.out.println(authResult.getPrincipal());
+        long expirationTime = EXPIRATION_TIME;
+        int cookExpirationTime = -1;
+        // 处理登陆附加信息
+        LoginDetails loginDetails = (LoginDetails) authResult.getDetails();
+        if (loginDetails.getRememberMe() != null && loginDetails.getRememberMe()) {
+            expirationTime = COOKIE_EXPIRATION_TIME * 1000;
+            cookExpirationTime = COOKIE_EXPIRATION_TIME;
+        }
 
         String jwt = Jwts.builder()
                 // Subject 设置用户名
@@ -48,23 +66,26 @@ public class TokenAuthenticationHelper {
                 // 设置用户权限
                 .claim("authorities", stringBuffer)
                 // 过期时间
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
                 // 签名算法
                 .signWith(SignatureAlgorithm.HS512, SECRET_KEY)
                 .compact();
         Cookie cookie = new Cookie(COOKIE_TOKEN, jwt);
         cookie.setHttpOnly(true);
         cookie.setPath("/");
+        cookie.setMaxAge(cookExpirationTime);
         res.addCookie(cookie);
         // 向前端写入数据
-//        Map<String, Object> map = new HashMap<>();
-//        map.put(COOKIE_BEARER, jwt);
-//        map.put("msg", "登陆成功！");
-//        res.setContentType("application/json; charset=UTF-8");
-//        PrintWriter out = res.getWriter();
-//        out.write(new ObjectMapper().writeValueAsString(map));
-//        out.flush();
-//        out.close();
+        ResultDetails resultDetails = new ResultDetails();
+        resultDetails.setStatus(200);
+        resultDetails.setMessage("登陆成功！");
+        resultDetails.setSuccess(true);
+        resultDetails.setTimestamp(LocalDateTime.now());
+        res.setContentType("application/json; charset=UTF-8");
+        PrintWriter out = res.getWriter();
+        out.write(new ObjectMapper().writeValueAsString(resultDetails));
+        out.flush();
+        out.close();
     }
 
     /**

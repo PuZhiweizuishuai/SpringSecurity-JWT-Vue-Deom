@@ -27,4 +27,9 @@ public class InMemoryVerifyCodeRepositoryImpl implements VerifyCodeRepository {
     public String find(String key) {
         return REPOSITORY.get(key);
     }
+
+    @Override
+    public void remove(String key) {
+        REPOSITORY.remove(key);
+    }
 }

@@ -1,8 +1,21 @@
 HELP.md
 spring-security-jwt/target/
+vue/node_modules/
 !.mvn/wrapper/maven-wrapper.jar
 !**/spring-security-jwt/src/main/**
 !**/spring-security-jwt/src/test/**
+.DS_Store
+
+vue/dist
+
+# local env files
+.env.local
+.env.*.local
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 ### STS ###
 .apt_generated
