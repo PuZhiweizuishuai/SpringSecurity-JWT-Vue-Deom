@@ -1,10 +1,12 @@
 package com.bugaugaoshu.security.filter;
 
 import com.bugaugaoshu.security.config.TokenAuthenticationHelper;
+import com.bugaugaoshu.security.damain.ErrorDetails;
 import com.bugaugaoshu.security.model.LoginDetails;
 import com.bugaugaoshu.security.model.User;
 import com.bugaugaoshu.security.service.VerifyCodeService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -19,8 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.LocalDateTime;
 
 /**
  * @author Pu Zhiwei {@literal puzhiweipuzhiwei@foxmail.com}
@@ -52,14 +53,16 @@ public class JwtLoginFilter extends AbstractAuthenticationProcessingFilter {
         // 获取 User 对象
         // readValue 第一个参数 输入流，第二个参数 要转换的对象
         User user = new ObjectMapper().readValue(httpServletRequest.getInputStream(), User.class);
-        // 获取验证码 TODO 异常处理
+        // 验证码验证
         verifyCodeService.verify(httpServletRequest.getSession().getId(), user.getVerifyCode());
+
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
                 user.getUsername(),
                 user.getPassword(),
                 user.getAuthorities()
         );
         // 添加验证的附加信息
+        // 包括验证码信息和是否记住我
         token.setDetails(new LoginDetails(user.getRememberMe(), user.getVerifyCode()));
         // 进行登陆验证
         return getAuthenticationManager().authenticate(token);
@@ -80,13 +83,15 @@ public class JwtLoginFilter extends AbstractAuthenticationProcessingFilter {
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
         // 向前端写入数据
-        Map<String, Object> map = new HashMap<>();
-        map.put("msg", "登陆失败！");
-        // 获取异常信息
-        map.put("error", failed.getMessage());
+        ErrorDetails errorDetails = new ErrorDetails();
+        errorDetails.setStatus(HttpStatus.UNAUTHORIZED.value());
+        errorDetails.setMessage("登陆失败！");
+        errorDetails.setError(failed.getLocalizedMessage());
+        errorDetails.setTimestamp(LocalDateTime.now());
+        errorDetails.setPath(request.getServletPath());
         response.setContentType("application/json; charset=UTF-8");
         PrintWriter out = response.getWriter();
-        out.write(new ObjectMapper().writeValueAsString(map));
+        out.write(new ObjectMapper().writeValueAsString(errorDetails));
         out.flush();
         out.close();
     }

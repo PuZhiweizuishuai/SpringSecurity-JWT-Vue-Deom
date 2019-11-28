@@ -1,24 +1,17 @@
 package com.bugaugaoshu.security.exception;
 
-public class VerifyFailedException extends RuntimeException {
+import org.springframework.security.core.AuthenticationException;
 
-    public VerifyFailedException() {
-        super();
+/**
+ * @author puzhiwei
+ * 继承 AuthenticationException 方便 Spring security 返回异常
+ */
+public class VerifyFailedException extends AuthenticationException {
+    public VerifyFailedException(String msg, Throwable t) {
+        super(msg, t);
     }
 
-    public VerifyFailedException(String message) {
-        super(message);
-    }
-
-    public VerifyFailedException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
-    public VerifyFailedException(Throwable cause) {
-        super(cause);
-    }
-
-    protected VerifyFailedException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
+    public VerifyFailedException(String msg) {
+        super(msg);
     }
 }

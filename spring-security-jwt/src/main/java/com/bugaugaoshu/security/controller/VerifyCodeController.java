@@ -2,10 +2,7 @@ package com.bugaugaoshu.security.controller;
 
 import com.bugaugaoshu.security.service.VerifyCodeService;
 import org.springframework.core.io.InputStreamResource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,12 +38,16 @@ public class VerifyCodeController {
         return new InputStreamResource(byteArrayInputStream);
     }
 
-    @GetMapping("/image")
+    @GetMapping("/verifyImage")
     public HttpEntity image(HttpSession session) throws IOException {
         Image image = verifyCodeService.image(session.getId());
         InputStreamResource inputStreamResource = imageToInputStreamResource(image, IMAGE_FORMAT);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.set("Pragma", "No-cache");
+        httpHeaders.set("Cache-Control", "no-cache");
         return ResponseEntity
                 .status(HttpStatus.OK)
+                .headers(httpHeaders)
                 .contentType(MediaType.IMAGE_PNG)
                 .body(inputStreamResource);
     }

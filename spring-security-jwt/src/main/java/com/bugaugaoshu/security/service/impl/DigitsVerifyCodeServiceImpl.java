@@ -62,9 +62,10 @@ public class DigitsVerifyCodeServiceImpl implements VerifyCodeService {
         String[] lastVerifyCodeAndTimestamp = lastVerifyCodeWithTimestamp.split("#");
         String lastVerifyCode = lastVerifyCodeAndTimestamp[0];
         long timestamp = Long.parseLong(lastVerifyCodeAndTimestamp[1]);
-        if (timestamp + VERIFY_CODE_EXPIRE_TIMEOUT < System.currentTimeMillis()
-                || !Objects.equals(code, lastVerifyCode)) {
-            throw new VerifyFailedException("Invalid code for " + key);
+        if (timestamp + VERIFY_CODE_EXPIRE_TIMEOUT < System.currentTimeMillis()) {
+            throw new VerifyFailedException("验证码已过期！");
+        } else if (!Objects.equals(code, lastVerifyCode)) {
+            throw new VerifyFailedException("验证码错误！");
         }
     }
 

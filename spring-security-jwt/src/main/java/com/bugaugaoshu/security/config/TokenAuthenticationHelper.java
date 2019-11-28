@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -77,7 +78,7 @@ public class TokenAuthenticationHelper {
         res.addCookie(cookie);
         // 向前端写入数据
         ResultDetails resultDetails = new ResultDetails();
-        resultDetails.setStatus(200);
+        resultDetails.setStatus(HttpStatus.OK.value());
         resultDetails.setMessage("登陆成功！");
         resultDetails.setSuccess(true);
         resultDetails.setTimestamp(LocalDateTime.now());
