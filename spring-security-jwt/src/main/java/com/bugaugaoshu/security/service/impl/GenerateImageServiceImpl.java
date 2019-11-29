@@ -7,6 +7,9 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.Random;
 
+/**
+ * @author puzhiwei
+ */
 @Service
 public class GenerateImageServiceImpl implements GenerateImageService {
 
@@ -37,4 +40,7 @@ public class GenerateImageServiceImpl implements GenerateImageService {
         graphics.drawString(string, width / 2, height / 2);
         return bufferedImage;
     }
+
+
+
 }

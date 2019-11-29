@@ -5,16 +5,12 @@ import com.bugaugaoshu.security.filter.JwtLoginFilter;
 import com.bugaugaoshu.security.service.VerifyCodeService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -40,6 +36,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private final static String[] PERMIT_ALL_MAPPING = {
             "/api/hello",
             "/api/login",
+            "/api/home",
             "/api/verifyImage",
             "/api/image/verify"
     };
@@ -105,18 +102,29 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         // 在内存中写入用户数据
-        auth.inMemoryAuthentication()
-                .withUser("user")
-                .password(passwordEncoder().encode("123456"))
-                .authorities("ROLE_USER")
-                .and()
-                .withUser("admin")
-                .password(passwordEncoder().encode("123456"))
-                .authorities("ROLE_ADMIN")
-                .and()
-                .withUser("user1")
-                .password(passwordEncoder().encode("123456"))
-                .authorities("ROLE_USER")
-                .accountLocked(true);
+        auth.authenticationProvider(daoAuthenticationProvider());
+                //.inMemoryAuthentication();
+//                .withUser("user")
+//                .password(passwordEncoder().encode("123456"))
+//                .authorities("ROLE_USER")
+//                .and()
+//                .withUser("admin")
+//                .password(passwordEncoder().encode("123456"))
+//                .authorities("ROLE_ADMIN")
+//                .and()
+//                .withUser("block")
+//                .password(passwordEncoder().encode("123456"))
+//                .authorities("ROLE_USER")
+//                .accountLocked(true);
+    }
+
+    @Bean
+    public DaoAuthenticationProvider daoAuthenticationProvider() {
+
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setHideUserNotFoundExceptions(false);
+        provider.setPasswordEncoder(passwordEncoder());
+        provider.setUserDetailsService(new CustomUserDetailsService());
+        return provider;
     }
 }

@@ -45,6 +45,7 @@ public class User implements UserDetails {
         this.verifyCode = verifyCode;
     }
 
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return authorities;
