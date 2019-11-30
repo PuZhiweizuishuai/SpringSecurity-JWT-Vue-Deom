@@ -80,10 +80,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests()
                 .antMatchers(PERMIT_ALL_MAPPING)
                 .permitAll()
-                .antMatchers("/api/user")
+                .antMatchers("/api/user/**", "/api/data")
                 // USER 和 ADMIN 都可以访问
                 .hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
-                .antMatchers("/api/admin")
+                .antMatchers("/api/admin/**")
                 // 只有 ADMIN 才可以访问
                 .hasAnyAuthority("ROLE_ADMIN")
                 .anyRequest()
