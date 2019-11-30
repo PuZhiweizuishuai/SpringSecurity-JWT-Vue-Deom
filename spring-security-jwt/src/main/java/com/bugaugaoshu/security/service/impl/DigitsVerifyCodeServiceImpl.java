@@ -5,6 +5,7 @@ import com.bugaugaoshu.security.repository.VerifyCodeRepository;
 import com.bugaugaoshu.security.service.GenerateImageService;
 import com.bugaugaoshu.security.service.SendMessageService;
 import com.bugaugaoshu.security.service.VerifyCodeService;
+import com.bugaugaoshu.security.util.VerifyCodeUtil;
 import org.springframework.stereotype.Service;
 
 import java.awt.*;
@@ -25,14 +26,15 @@ public class DigitsVerifyCodeServiceImpl implements VerifyCodeService {
 
     private final SendMessageService sendMessageService;
 
-    private static final int VERIFY_CODE_LENGTH = 4;
+    private final VerifyCodeUtil verifyCodeUtil;
 
     private static final long VERIFY_CODE_EXPIRE_TIMEOUT = 60000L;
 
-    public DigitsVerifyCodeServiceImpl(VerifyCodeRepository verifyCodeRepository, GenerateImageService generateImageService, SendMessageService sendMessageService) {
+    public DigitsVerifyCodeServiceImpl(VerifyCodeRepository verifyCodeRepository, GenerateImageService generateImageService, SendMessageService sendMessageService, VerifyCodeUtil verifyCodeUtil) {
         this.verifyCodeRepository = verifyCodeRepository;
         this.generateImageService = generateImageService;
         this.sendMessageService = sendMessageService;
+        this.verifyCodeUtil = verifyCodeUtil;
     }
 
     private static String randomDigitString(int length) {
@@ -50,7 +52,7 @@ public class DigitsVerifyCodeServiceImpl implements VerifyCodeService {
 
     @Override
     public void send(String key) {
-        String verifyCode = randomDigitString(VERIFY_CODE_LENGTH);
+        String verifyCode = randomDigitString(verifyCodeUtil.getLen());
         String verifyCodeWithTimestamp = appendTimestamp(verifyCode);
         verifyCodeRepository.save(key, verifyCodeWithTimestamp);
         sendMessageService.send(key, verifyCode);
@@ -59,6 +61,10 @@ public class DigitsVerifyCodeServiceImpl implements VerifyCodeService {
     @Override
     public void verify(String key, String code) {
         String lastVerifyCodeWithTimestamp = verifyCodeRepository.find(key);
+        // 如果没有验证码，则随机生成一个
+        if (lastVerifyCodeWithTimestamp == null) {
+            lastVerifyCodeWithTimestamp = appendTimestamp(randomDigitString(verifyCodeUtil.getLen()));
+        }
         String[] lastVerifyCodeAndTimestamp = lastVerifyCodeWithTimestamp.split("#");
         String lastVerifyCode = lastVerifyCodeAndTimestamp[0];
         long timestamp = Long.parseLong(lastVerifyCodeAndTimestamp[1]);
@@ -71,7 +77,7 @@ public class DigitsVerifyCodeServiceImpl implements VerifyCodeService {
 
     @Override
     public Image image(String key) {
-        String verifyCode = randomDigitString(VERIFY_CODE_LENGTH);
+        String verifyCode = randomDigitString(verifyCodeUtil.getLen());
         String verifyCodeWithTimestamp = appendTimestamp(verifyCode);
         Image image = generateImageService.imageWithDisturb(verifyCode);
         verifyCodeRepository.save(key, verifyCodeWithTimestamp);

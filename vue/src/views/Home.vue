@@ -42,7 +42,6 @@
                     "Content-Type": "application/json; charset=UTF-8"
                 },
                 method: "GET",
-                mode: "cors"
             }).then(response => response.json())
                 .then(json => {
                     this.handbook = json.homeMessage;

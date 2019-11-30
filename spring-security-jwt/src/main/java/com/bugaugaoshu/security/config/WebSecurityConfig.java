@@ -2,6 +2,7 @@ package com.bugaugaoshu.security.config;
 
 import com.bugaugaoshu.security.filter.JwtAuthenticationFilter;
 import com.bugaugaoshu.security.filter.JwtLoginFilter;
+import com.bugaugaoshu.security.service.LoginCountService;
 import com.bugaugaoshu.security.service.VerifyCodeService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,7 +20,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Pu Zhiwei {@literal puzhiweipuzhiwei@foxmail.com}
@@ -29,6 +31,8 @@ import java.util.Collections;
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private final VerifyCodeService verifyCodeService;
+
+    private final LoginCountService loginCountService;
 
     /**
      * 开放访问的请求
@@ -41,8 +45,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             "/api/image/verify"
     };
 
-    public WebSecurityConfig(VerifyCodeService verifyCodeService) {
+    public WebSecurityConfig(VerifyCodeService verifyCodeService, LoginCountService loginCountService) {
         this.verifyCodeService = verifyCodeService;
+        this.loginCountService = loginCountService;
     }
 
     @Bean
@@ -55,9 +60,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
      */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
+        // 允许跨域访问的 URL
+        List<String> allowedOriginsUrl = new ArrayList<>();
+        allowedOriginsUrl.add("http://localhost:8080");
+        allowedOriginsUrl.add("http://127.0.0.1:8080");
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.setAllowedOrigins(Collections.singletonList("http://127.0.0.1:8080"));
+        // 设置允许跨域访问的 URL
+        config.setAllowedOrigins(allowedOriginsUrl);
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -81,7 +91,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 // 添加过滤器链,前一个参数过滤器， 后一个参数过滤器添加的地方
                 // 登陆过滤器
-                .addFilterBefore(new JwtLoginFilter("/api/login", authenticationManager(), verifyCodeService), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JwtLoginFilter("/api/login", authenticationManager(), verifyCodeService, loginCountService), UsernamePasswordAuthenticationFilter.class)
                 // 请求过滤器
                 .addFilterBefore(new JwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class)
                 // 开启跨域

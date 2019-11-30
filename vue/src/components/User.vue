@@ -2,7 +2,7 @@
     <div>
         <h1>User</h1>
         <h1> {{ count }} </h1>
-        <button v-on:click="ceshi">Ceshi</button>
+        <el-button v-on:click="ceshi">Ceshi</el-button>
     </div>
 </template>
 <script>
@@ -21,7 +21,6 @@
                         "Content-Type": "application/json; charset=UTF-8"
                     },
                     method: "GET",
-                    mode: "cors"
                 }).then(response => response.json())
                     .then(json => {
                         window.console.log(json);

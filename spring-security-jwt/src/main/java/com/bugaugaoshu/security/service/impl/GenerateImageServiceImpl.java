@@ -1,6 +1,9 @@
 package com.bugaugaoshu.security.service.impl;
 
 import com.bugaugaoshu.security.service.GenerateImageService;
+import com.bugaugaoshu.security.util.VerifyCodeUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import java.awt.*;
@@ -12,35 +15,46 @@ import java.util.Random;
  */
 @Service
 public class GenerateImageServiceImpl implements GenerateImageService {
+    private final VerifyCodeUtil verifyCodeUtil;
 
-    private static final int DEFAULT_IMAGE_WIDTH = 80;
 
-    private static final int DEFAULT_IMAGE_HEIGHT = 60;
 
-    private static final int BYTE_MASK = 0xff;
-
-    private static Color randomArgbColor() {
-        Random random = new Random();
-        int a = random.nextInt() & BYTE_MASK;
-        int r = random.nextInt() & BYTE_MASK;
-        int g = random.nextInt() & BYTE_MASK;
-        int b = random.nextInt() & BYTE_MASK;
-        return new Color(r, g, b, a);
+    @Autowired
+    public GenerateImageServiceImpl(VerifyCodeUtil verifyCodeUtil) {
+        this.verifyCodeUtil = verifyCodeUtil;
     }
 
     @Override
     public Image imageWithDisturb(String string) {
-        return imageWithDisturb(string, DEFAULT_IMAGE_WIDTH, DEFAULT_IMAGE_HEIGHT);
+        return imageWithDisturb(string, verifyCodeUtil.getWidth(), verifyCodeUtil.getHeight());
     }
 
     private Image imageWithDisturb(String string, int width, int height) {
-        BufferedImage bufferedImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        Graphics graphics = bufferedImage.getGraphics();
-        graphics.setColor(randomArgbColor());
-        graphics.drawString(string, width / 2, height / 2);
-        return bufferedImage;
+        BufferedImage bi = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g2d = (Graphics2D) bi.getGraphics();
+        // 填充背景
+        g2d.setColor(Color.WHITE);
+        g2d.fillRect(0, 0, width, height);
+        // 抗锯齿
+        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        // 画干扰圆
+        verifyCodeUtil.drawOval(2, g2d);
+        // 画干扰线
+        g2d.setStroke(new BasicStroke(2f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL));
+        verifyCodeUtil.drawBesselLine(1, g2d);
+
+        FontMetrics fontMetrics = g2d.getFontMetrics();
+        // 每一个字符所占的宽度
+        int fW = width / string.length();
+        // 字符的左右边距
+        int fSp = (fW - (int) fontMetrics.getStringBounds("W", g2d).getWidth()) / 2;
+        for (int i = 0; i < string.length(); i++) {
+            g2d.setColor(verifyCodeUtil.color());
+            // 文字的纵坐标
+            int fY = height - ((height - (int) fontMetrics.getStringBounds(String.valueOf(string.charAt(i)), g2d).getHeight()) >> 1);
+            g2d.drawString(String.valueOf(string.charAt(i)), i * fW + fSp + 3, fY - 3);
+        }
+        g2d.dispose();
+        return bi;
     }
-
-
-
 }
