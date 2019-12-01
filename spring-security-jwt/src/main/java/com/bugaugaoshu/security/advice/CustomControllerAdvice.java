@@ -1,6 +1,7 @@
 package com.bugaugaoshu.security.advice;
 
 import com.bugaugaoshu.security.cache.SystemDataCache;
+import com.bugaugaoshu.security.controller.AdminController;
 import com.bugaugaoshu.security.controller.HomeController;
 import com.bugaugaoshu.security.controller.UserController;
 import com.bugaugaoshu.security.damain.ErrorDetails;
@@ -18,10 +19,10 @@ import java.time.LocalDateTime;
  * @author Pu Zhiwei {@literal puzhiweipuzhiwei@foxmail.com}
  * create          2019-11-30 18:57
  */
-@RestControllerAdvice(assignableTypes = {UserController.class, HomeController.class})
-public class UserControllerAdvice {
+@RestControllerAdvice(assignableTypes = {UserController.class, HomeController.class, AdminController.class})
+public class CustomControllerAdvice {
     @ExceptionHandler
-    public HttpEntity userExceptionHandler(CustomizeException e, HttpServletRequest request) {
+    public HttpEntity customExceptionHandler(CustomizeException e, HttpServletRequest request) {
         ErrorDetails errorDetails = new ErrorDetails();
         errorDetails.setTimestamp(LocalDateTime.now());
         errorDetails.setStatus(HttpStatus.NOT_FOUND.value());

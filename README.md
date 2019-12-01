@@ -26,6 +26,7 @@ Server Build Tools| Maven
 **Run back end server**
 
 ```bash
+cd spring-security-jwt
 mvn clean package
 ```
 
@@ -38,6 +39,7 @@ java -jar target/security 0.0.1-SNAPSHOT.jar
 **Run front end server**
 
 ```bash
+cd vue
 npm install
 ```
 

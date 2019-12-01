@@ -21,8 +21,8 @@ public class CustomUserDetailsService implements UserDetailsService {
     private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public CustomUserDetailsService() {
-        UserDetails user = User.withUsername("user").password(passwordEncoder.encode("123456")).authorities("ROLE_USER").build();
-        UserDetails admin = User.withUsername("admin").password(passwordEncoder.encode("123456")).authorities("ROLE_ADMIN").build();
+        UserDetails user = User.withUsername("user").password(passwordEncoder.encode("123456")).authorities(WebSecurityConfig.USER).build();
+        UserDetails admin = User.withUsername("admin").password(passwordEncoder.encode("123456")).authorities(WebSecurityConfig.ADMIN).build();
         userList.add(user);
         userList.add(admin);
     }

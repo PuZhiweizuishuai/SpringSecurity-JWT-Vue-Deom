@@ -15,6 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.web.util.HtmlUtils;
 
 
 import javax.servlet.FilterChain;
@@ -62,9 +63,12 @@ public class JwtLoginFilter extends AbstractAuthenticationProcessingFilter {
         User user = new ObjectMapper().readValue(httpServletRequest.getInputStream(), User.class);
         // 验证码验证
         verifyCodeService.verify(httpServletRequest.getSession().getId(), user.getVerifyCode());
+        // 对 html 标签进行转义，防止 XSS 攻击
+        String username = user.getUsername();
+        username = HtmlUtils.htmlEscape(username);
 
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
-                user.getUsername(),
+                username,
                 user.getPassword(),
                 user.getAuthorities()
         );
@@ -82,7 +86,7 @@ public class JwtLoginFilter extends AbstractAuthenticationProcessingFilter {
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         //loginCountService.cleanLoginCount(request);
         // 登陆成功
-        TokenAuthenticationHelper.addAuthentication(response, authResult);
+        TokenAuthenticationHelper.addAuthentication(request, response ,authResult);
     }
 
     /**

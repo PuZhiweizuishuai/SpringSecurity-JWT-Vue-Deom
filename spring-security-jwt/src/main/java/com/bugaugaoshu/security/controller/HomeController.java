@@ -1,7 +1,7 @@
 package com.bugaugaoshu.security.controller;
 
-import com.bugaugaoshu.security.cache.SystemDataCache;
-import com.bugaugaoshu.security.exception.CustomizeException;
+
+import com.bugaugaoshu.security.service.SystemDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.ResponseEntity;
@@ -20,12 +20,13 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api")
 public class HomeController {
-    private final SystemDataCache systemDataCache;
+    private final SystemDataService systemDataService;
 
     @Autowired
-    public HomeController(SystemDataCache systemDataCache) {
-        this.systemDataCache = systemDataCache;
+    public HomeController(SystemDataService systemDataService) {
+        this.systemDataService = systemDataService;
     }
+
 
     @GetMapping("/hello")
     public String hello() {
@@ -42,22 +43,8 @@ public class HomeController {
     @GetMapping("/data")
     public HttpEntity select(@RequestParam(value = "id", required = false) String id) {
         if (id == null) {
-            return ResponseEntity.ok().body(systemDataCache.getMap());
+            return ResponseEntity.ok().body(systemDataService.get());
         }
-        Map<Integer, Object> map = new HashMap<>();
-        int dataId = -1;
-        try {
-            dataId = Integer.parseInt(id);
-        } catch (Exception e) {
-            throw new CustomizeException("非法的查询请求！ id=" + id);
-        }
-        String msg = (String) systemDataCache.getMap().get(dataId);
-        if (msg == null) {
-            throw new CustomizeException("没有发现这个数据！id=" + id);
-        } else {
-            map.put(dataId, msg);
-            return ResponseEntity.ok().body(map);
-        }
-
+        return ResponseEntity.ok().body(systemDataService.select(id));
     }
 }

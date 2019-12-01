@@ -30,6 +30,10 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+    public static String ADMIN = "ROLE_ADMIN";
+
+    public static String USER = "ROLE_USER";
+
     private final VerifyCodeService verifyCodeService;
 
     private final LoginCountService loginCountService;
@@ -82,10 +86,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .antMatchers("/api/user/**", "/api/data")
                 // USER 和 ADMIN 都可以访问
-                .hasAnyAuthority("ROLE_USER", "ROLE_ADMIN")
+                .hasAnyAuthority(USER, ADMIN)
                 .antMatchers("/api/admin/**")
                 // 只有 ADMIN 才可以访问
-                .hasAnyAuthority("ROLE_ADMIN")
+                .hasAnyAuthority(ADMIN)
                 .anyRequest()
                 .authenticated()
                 .and()

@@ -89,6 +89,13 @@
         },
         methods: {
             submitForm() {
+                this.$refs['loginForm'].validate((valid) => {
+                    if (valid) {
+                        window.console.log("submit!");
+                    } else {
+                        return false;
+                    }
+                });
                 let user = {
                     username: this.loginForm.username,
                     password: this.loginForm.password,
@@ -104,14 +111,18 @@
                     body: JSON.stringify(user)
                 }).then(response => response.json())
                     .then(json => {
-                        const h = this.$createElement;
-                        this.$message.error({
-                            message: h('div', null, [
-                                h('h3', null,'消息：' + json.error),
-                                h('p', null, 'path:' + json.path),
-                                h('p',  { style: 'color: teal' }, '状态码：' + json.status),
-                            ])
-                        });
+                        if (json.status === 200) {
+                            window.console.log("success");
+                        } else {
+                            const h = this.$createElement;
+                            this.$message.error({
+                                message: h('div', null, [
+                                    h('h3', null,'消息：' + json.error),
+                                    h('p', null, 'path:' + json.path),
+                                    h('p',  { style: 'color: teal' }, '状态码：' + json.status),
+                                ])
+                            });
+                        }
                     });
             },
             // 清空输入

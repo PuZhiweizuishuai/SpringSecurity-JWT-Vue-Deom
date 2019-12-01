@@ -40,11 +40,12 @@ public class TokenAuthenticationHelper {
 
     private static final String SECRET_KEY = "ThisIsASpringSecurityDemo";
     private static final String COOKIE_TOKEN = "COOKIE-TOKEN";
+    private static final String XSRF = "XSRF-TOKEN";
 
     /**
      * 设置登陆成功后令牌返回
      * */
-    public static void addAuthentication(HttpServletResponse res, Authentication authResult) throws IOException {
+    public static void addAuthentication(HttpServletRequest request,  HttpServletResponse response, Authentication authResult) throws IOException {
         // 获取用户登陆角色
         Collection<? extends GrantedAuthority> authorities = authResult.getAuthorities();
         // 遍历用户角色
@@ -75,15 +76,16 @@ public class TokenAuthenticationHelper {
         cookie.setHttpOnly(true);
         cookie.setPath("/");
         cookie.setMaxAge(cookExpirationTime);
-        res.addCookie(cookie);
+        response.addCookie(cookie);
+
         // 向前端写入数据
         ResultDetails resultDetails = new ResultDetails();
         resultDetails.setStatus(HttpStatus.OK.value());
         resultDetails.setMessage("登陆成功！");
         resultDetails.setSuccess(true);
         resultDetails.setTimestamp(LocalDateTime.now());
-        res.setContentType("application/json; charset=UTF-8");
-        PrintWriter out = res.getWriter();
+        response.setContentType("application/json; charset=UTF-8");
+        PrintWriter out = response.getWriter();
         out.write(new ObjectMapper().writeValueAsString(resultDetails));
         out.flush();
         out.close();

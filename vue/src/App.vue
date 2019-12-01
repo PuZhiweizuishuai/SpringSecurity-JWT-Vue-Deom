@@ -26,6 +26,9 @@
             return {
                 src: "../assets/logo.png"
             }
+        },
+        created() {
+
         }
     }
 </script>

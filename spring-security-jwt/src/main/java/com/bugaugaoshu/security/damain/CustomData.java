@@ -8,6 +8,15 @@ public class CustomData {
     private Integer id;
     private String data;
 
+    public CustomData(Integer id, String data) {
+        this.id = id;
+        this.data = data;
+    }
+
+    public CustomData() {
+
+    }
+
     public String getData() {
         return data;
     }
