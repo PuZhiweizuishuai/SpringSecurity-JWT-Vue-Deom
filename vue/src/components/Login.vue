@@ -90,9 +90,7 @@
         methods: {
             submitForm() {
                 this.$refs['loginForm'].validate((valid) => {
-                    if (valid) {
-                        window.console.log("submit!");
-                    } else {
+                    if (!valid) {
                         return false;
                     }
                 });
@@ -112,7 +110,13 @@
                 }).then(response => response.json())
                     .then(json => {
                         if (json.status === 200) {
-                            window.console.log("success");
+                            // 写入登陆信息
+                            window.console.log(json);
+                            window.localStorage.setItem('username', json.user.username);
+                            window.localStorage.setItem('power', json.user.power);
+                            window.localStorage.setItem('expirationTime', json.user.expirationTime);
+
+                            this.$router.replace('/');
                         } else {
                             const h = this.$createElement;
                             this.$message.error({

@@ -2,7 +2,9 @@ package com.bugaugaoshu.security.controller;
 
 import com.bugaugaoshu.security.config.WebSecurityConfig;
 import com.bugaugaoshu.security.damain.CustomData;
+import com.bugaugaoshu.security.damain.LoginResultDetails;
 import com.bugaugaoshu.security.damain.ResultDetails;
+import com.bugaugaoshu.security.service.LoginService;
 import com.bugaugaoshu.security.service.SystemDataService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -19,9 +21,18 @@ import org.springframework.web.util.HtmlUtils;
 public class UserController {
     private final SystemDataService systemDataService;
 
+
+    private final LoginService loginService;
+
     @Autowired
-    public UserController(SystemDataService systemDataService) {
+    public UserController(SystemDataService systemDataService, LoginService loginService) {
         this.systemDataService = systemDataService;
+        this.loginService = loginService;
+    }
+
+    @GetMapping("/loginJudge")
+    public LoginResultDetails showPage() {
+        return loginService.get();
     }
 
     @PostMapping("/data")

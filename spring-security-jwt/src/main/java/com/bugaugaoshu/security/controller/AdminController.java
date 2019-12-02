@@ -2,14 +2,13 @@ package com.bugaugaoshu.security.controller;
 
 import com.bugaugaoshu.security.config.WebSecurityConfig;
 import com.bugaugaoshu.security.damain.CustomData;
+import com.bugaugaoshu.security.damain.LoginResultDetails;
 import com.bugaugaoshu.security.damain.ResultDetails;
+import com.bugaugaoshu.security.service.LoginService;
 import com.bugaugaoshu.security.service.SystemDataService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.HtmlUtils;
-
-import java.time.LocalDateTime;
 
 
 /**
@@ -21,19 +20,17 @@ import java.time.LocalDateTime;
 public class AdminController {
     private final SystemDataService systemDataService;
 
+    private final LoginService loginService;
+
     @Autowired
-    public AdminController(SystemDataService systemDataService) {
+    public AdminController(SystemDataService systemDataService, LoginService loginService) {
         this.systemDataService = systemDataService;
+        this.loginService = loginService;
     }
 
-    @GetMapping("/isShow")
-    public ResultDetails showPage() {
-        ResultDetails resultDetails = new ResultDetails();
-        resultDetails.setSuccess(false);
-        resultDetails.setStatus(HttpStatus.OK.value());
-        resultDetails.setMessage("管理员权限确定！");
-        resultDetails.setTimestamp(LocalDateTime.now());
-        return resultDetails;
+    @GetMapping("/loginJudge")
+    public LoginResultDetails showPage() {
+        return loginService.get();
     }
 
     @PostMapping("/data")

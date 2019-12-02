@@ -28,12 +28,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
         try {
             Authentication authentication = TokenAuthenticationHelper.getAuthentication(httpServletRequest);
+
             // 对用 token 获取到的用户进行校验
             SecurityContextHolder.getContext().setAuthentication(authentication);
             filterChain.doFilter(httpServletRequest, httpServletResponse);
         } catch (ExpiredJwtException | UnsupportedJwtException | MalformedJwtException |
                 SignatureException | IllegalArgumentException e) {
-            httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token expired");
+            httpServletResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token expired，登陆已过期");
         }
     }
 }

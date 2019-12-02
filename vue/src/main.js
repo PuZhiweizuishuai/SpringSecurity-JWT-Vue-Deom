@@ -23,21 +23,6 @@ Vue.use(mavonEditor)
 // 后台服务地址
 Vue.prototype.SERVER_API_URL = "http://127.0.0.1:8088/api";
 
-router.beforeEach((to, from, next) => {
-        if (to.meta.requireAuth) {
-            if (store.state.user.username) {
-                next()
-            } else {
-                next({
-                    path: 'login',
-                    query: {redirect: to.fullPath}
-                })
-            }
-        } else {
-            next()
-        }
-    }
-)
 
 new Vue({
     router,

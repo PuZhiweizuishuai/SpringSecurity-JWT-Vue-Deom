@@ -1,7 +1,9 @@
 package com.bugaugaoshu.security.config;
 
+import com.bugaugaoshu.security.damain.LoginResultDetails;
 import com.bugaugaoshu.security.damain.ResultDetails;
 import com.bugaugaoshu.security.model.LoginDetails;
+import com.bugaugaoshu.security.model.User;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -79,14 +81,23 @@ public class TokenAuthenticationHelper {
         response.addCookie(cookie);
 
         // 向前端写入数据
+        LoginResultDetails loginResultDetails = new LoginResultDetails();
         ResultDetails resultDetails = new ResultDetails();
         resultDetails.setStatus(HttpStatus.OK.value());
         resultDetails.setMessage("登陆成功！");
         resultDetails.setSuccess(true);
         resultDetails.setTimestamp(LocalDateTime.now());
+        User user = new User();
+        user.setUsername(authResult.getName());
+        user.setPower(stringBuffer.toString());
+        user.setExpirationTime(System.currentTimeMillis() + expirationTime);
+
+        loginResultDetails.setResultDetails(resultDetails);
+        loginResultDetails.setUser(user);
+        loginResultDetails.setStatus(200);
         response.setContentType("application/json; charset=UTF-8");
         PrintWriter out = response.getWriter();
-        out.write(new ObjectMapper().writeValueAsString(resultDetails));
+        out.write(new ObjectMapper().writeValueAsString(loginResultDetails));
         out.flush();
         out.close();
     }
@@ -112,8 +123,12 @@ public class TokenAuthenticationHelper {
                             .collect(Collectors.toList());
 
             String userName = claims.getSubject();
-            // 传数据进行校验
-            return userName != null ? new UsernamePasswordAuthenticationToken(userName, null, authorities) : null;
+            if (userName != null) {
+                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userName, null, authorities);
+                usernamePasswordAuthenticationToken.setDetails(claims);
+                return usernamePasswordAuthenticationToken;
+            }
+            return null;
         }
         return null;
     }

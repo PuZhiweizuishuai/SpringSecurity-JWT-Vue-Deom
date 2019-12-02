@@ -22,6 +22,11 @@ Server Build Tools| Maven
 
 **Run Environment: Java11, Node 12, Maven3**
 
+**Clone this project**
+
+```bash
+git clone https://github.com/PuZhiweizuishuai/SpringSecurity-JWT-Vue-Deom.git
+```
 
 **Run back end server**
 

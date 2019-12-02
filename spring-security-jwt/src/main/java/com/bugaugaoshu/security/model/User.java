@@ -15,6 +15,8 @@ public class User implements UserDetails {
     private String password;
     private Boolean rememberMe;
     private String verifyCode;
+    private String power;
+    private Long expirationTime;
     private List<GrantedAuthority> authorities;
 
     public void setUsername(String username) {
@@ -45,6 +47,21 @@ public class User implements UserDetails {
         this.verifyCode = verifyCode;
     }
 
+    public String getPower() {
+        return power;
+    }
+
+    public Long getExpirationTime() {
+        return expirationTime;
+    }
+
+    public void setExpirationTime(Long expirationTime) {
+        this.expirationTime = expirationTime;
+    }
+
+    public void setPower(String power) {
+        this.power = power;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

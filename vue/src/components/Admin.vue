@@ -82,19 +82,29 @@
             //     .then(successResponse => {
             //         this.systemDataList = successResponse.data;
             //     })
-            fetch(this.SERVER_API_URL + '/admin/isShow', {
-                headers: {
-                    "Content-Type": "application/json; charset=UTF-8"
-                },
-                method: "GET",
-                credentials: "include"
-            }).then(response => response.json())
-            .then(json => {
-                if (json.status !== 200) {
-                    window.sessionStorage.setItem("menuItem", 'login');
-                    return this.$router.replace('/login');
-                }
-            });
+
+            // 判断登陆情况
+            // fetch(this.SERVER_API_URL + '/admin/loginJudge', {
+            //     headers: {
+            //         "Content-Type": "application/json; charset=UTF-8"
+            //     },
+            //     method: "GET",
+            //     credentials: "include"
+            // }).then(response => response.json())
+            // .then(json => {
+            //     if (json.status === 200) {
+            //         window.sessionStorage.setItem("menuItem", 'login');
+            //         window.localStorage.setItem('username', json.user.username);
+            //         window.localStorage.setItem('power', json.user.power);
+            //         window.localStorage.setItem('expirationTime', json.user.expirationTime);
+            //         return this.$router.replace('/login');
+            //     } else {
+            //
+            //         window.localStorage.removeItem('username');
+            //         window.localStorage.removeItem('power');
+            //         window.localStorage.removeItem('expirationTime');
+            //     }
+            // });
             fetch(this.SERVER_API_URL + "/data", {
                 headers: {
                     "Content-Type": "application/json; charset=UTF-8"
