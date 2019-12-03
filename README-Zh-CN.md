@@ -4,11 +4,11 @@
 
 ### 运行展示
 
-![主页](http://127.0.0.1:8088/images/home.jpg)
+![主页](https://github.com/PuZhiweizuishuai/SpringSecurity-JWT-Vue-Deom/blob/master/doc/home.jpg)
 
-![登陆]()
+![登陆](https://github.com/PuZhiweizuishuai/SpringSecurity-JWT-Vue-Deom/blob/master/doc/login.jpg)
 
-![管理员页]()
+![管理员页](https://github.com/PuZhiweizuishuai/SpringSecurity-JWT-Vue-Deom/blob/master/doc/admin.jpg)
 
 #### 后端
 
