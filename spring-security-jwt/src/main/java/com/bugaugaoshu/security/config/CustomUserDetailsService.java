@@ -18,9 +18,8 @@ import java.util.List;
 public class CustomUserDetailsService implements UserDetailsService {
     private List<UserDetails> userList = new ArrayList<>();
 
-    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
     public CustomUserDetailsService() {
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         UserDetails user = User.withUsername("user").password(passwordEncoder.encode("123456")).authorities(WebSecurityConfig.USER).build();
         UserDetails admin = User.withUsername("admin").password(passwordEncoder.encode("123456")).authorities(WebSecurityConfig.ADMIN).build();
         userList.add(user);
@@ -31,7 +30,13 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         for (UserDetails userDetails : userList) {
             if (userDetails.getUsername().equals(username)) {
-                return userDetails;
+                // 此处我尝试过直接返回 user
+                // 但是这样的话，只有后台服务启动后第一次登陆会有效
+                // 推出后第二次登陆会出现  Empty encoded password 的错误，导致无法登陆
+                // 这样写就不会出现这种问题了
+                // 至于为什么，我也不知道
+                // 这个解决方案来自 https://stackoverflow.com/questions/43007763/spring-security-encoded-password-gives-me-bad-credentials/43046195#43046195
+                return new User(userDetails.getUsername(), userDetails.getPassword(), userDetails.getAuthorities());
             }
         }
         throw new UsernameNotFoundException("用户名不存在，请检查用户名或注册！");

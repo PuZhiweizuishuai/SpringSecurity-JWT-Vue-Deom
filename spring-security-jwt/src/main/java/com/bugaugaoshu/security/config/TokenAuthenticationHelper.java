@@ -41,8 +41,8 @@ public class TokenAuthenticationHelper {
     private static final int COOKIE_EXPIRATION_TIME = 1296000;
 
     private static final String SECRET_KEY = "ThisIsASpringSecurityDemo";
-    private static final String COOKIE_TOKEN = "COOKIE-TOKEN";
-    private static final String XSRF = "XSRF-TOKEN";
+    public static final String COOKIE_TOKEN = "COOKIE-TOKEN";
+    public static final String XSRF = "XSRF-TOKEN";
 
     /**
      * 设置登陆成功后令牌返回

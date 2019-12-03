@@ -39,6 +39,8 @@
 </template>
 
 <script>
+    import store from "../store";
+
     export default {
         name: "Login",
         data() {
@@ -111,7 +113,9 @@
                     .then(json => {
                         if (json.status === 200) {
                             // 写入登陆信息
-                            window.console.log(json);
+                            store.state.user.username = json.user.username;
+                            store.state.user.power = json.user.power;
+                            store.state.user.expirationTime = json.user.expirationTime;
                             window.localStorage.setItem('username', json.user.username);
                             window.localStorage.setItem('power', json.user.power);
                             window.localStorage.setItem('expirationTime', json.user.expirationTime);

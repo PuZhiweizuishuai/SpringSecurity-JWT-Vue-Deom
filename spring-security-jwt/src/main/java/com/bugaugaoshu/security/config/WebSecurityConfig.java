@@ -1,11 +1,14 @@
 package com.bugaugaoshu.security.config;
 
+import com.bugaugaoshu.security.damain.ResultDetails;
 import com.bugaugaoshu.security.filter.JwtAuthenticationFilter;
 import com.bugaugaoshu.security.filter.JwtLoginFilter;
 import com.bugaugaoshu.security.service.LoginCountService;
 import com.bugaugaoshu.security.service.VerifyCodeService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -19,9 +22,15 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.util.WebUtils;
 
+import javax.servlet.http.Cookie;
+import java.io.PrintWriter;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.bugaugaoshu.security.config.TokenAuthenticationHelper.COOKIE_TOKEN;
 
 /**
  * @author Pu Zhiwei {@literal puzhiweipuzhiwei@foxmail.com}
@@ -46,7 +55,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
             "/api/login",
             "/api/home",
             "/api/verifyImage",
-            "/api/image/verify"
+            "/api/image/verify",
+            "/images/**"
     };
 
     public WebSecurityConfig(VerifyCodeService verifyCodeService, LoginCountService loginCountService) {
@@ -84,7 +94,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests()
                 .antMatchers(PERMIT_ALL_MAPPING)
                 .permitAll()
-                .antMatchers("/api/user/**", "/api/data")
+                .antMatchers("/api/user/**", "/api/data", "/api/logout")
                 // USER 和 ADMIN 都可以访问
                 .hasAnyAuthority(USER, ADMIN)
                 .antMatchers("/api/admin/**")
@@ -116,7 +126,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         // 在内存中写入用户数据
-        auth.authenticationProvider(daoAuthenticationProvider());
+        auth.
+                authenticationProvider(daoAuthenticationProvider());
                 //.inMemoryAuthentication();
 //                .withUser("user")
 //                .password(passwordEncoder().encode("123456"))
