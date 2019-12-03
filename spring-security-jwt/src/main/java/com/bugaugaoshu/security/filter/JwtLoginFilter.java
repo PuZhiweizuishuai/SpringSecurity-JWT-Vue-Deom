@@ -57,7 +57,7 @@ public class JwtLoginFilter extends AbstractAuthenticationProcessingFilter {
     @Override
     public Authentication attemptAuthentication(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws AuthenticationException, IOException, ServletException {
         // 判断是否要抛出 登陆请求过快的异常
-        //loginCountService.judgeLoginCount(httpServletRequest);
+        loginCountService.judgeLoginCount(httpServletRequest);
         // 获取 User 对象
         // readValue 第一个参数 输入流，第二个参数 要转换的对象
         User user = new ObjectMapper().readValue(httpServletRequest.getInputStream(), User.class);
@@ -66,7 +66,6 @@ public class JwtLoginFilter extends AbstractAuthenticationProcessingFilter {
         // 对 html 标签进行转义，防止 XSS 攻击
         String username = user.getUsername();
         username = HtmlUtils.htmlEscape(username);
-        System.out.println(user.getPassword());
         UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(
                 username,
                 user.getPassword(),
@@ -84,7 +83,7 @@ public class JwtLoginFilter extends AbstractAuthenticationProcessingFilter {
      * */
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
-        //loginCountService.cleanLoginCount(request);
+        loginCountService.cleanLoginCount(request);
         // 登陆成功
         TokenAuthenticationHelper.addAuthentication(request, response ,authResult);
     }
@@ -95,7 +94,7 @@ public class JwtLoginFilter extends AbstractAuthenticationProcessingFilter {
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
         // 错误请求次数加 1
-        //loginCountService.addLoginCount(request, 1);
+        loginCountService.addLoginCount(request, 1);
         // 向前端写入数据
         ErrorDetails errorDetails = new ErrorDetails();
         errorDetails.setStatus(HttpStatus.UNAUTHORIZED.value());
