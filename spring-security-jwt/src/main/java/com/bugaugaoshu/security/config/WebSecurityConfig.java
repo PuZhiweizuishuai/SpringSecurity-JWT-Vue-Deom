@@ -119,9 +119,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         // 在内存中写入用户数据
-        auth.
-                authenticationProvider(daoAuthenticationProvider());
-                //.inMemoryAuthentication();
+        auth
+                .authenticationProvider(daoAuthenticationProvider());
+//                .inMemoryAuthentication()
 //                .withUser("user")
 //                .password(passwordEncoder().encode("123456"))
 //                .authorities("ROLE_USER")
