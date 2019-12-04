@@ -1,4 +1,4 @@
-# Under development
+# JWT Spring Boot Security
 
 [Chinese Documents 中文文档](https://github.com/PuZhiweizuishuai/SpringSecurity-JWT-Vue-Deom/blob/master/README-Zh-CN.md)
 
