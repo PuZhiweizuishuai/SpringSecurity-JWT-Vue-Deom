@@ -58,7 +58,7 @@ mvn clean package
 之后运行，程序默认运行端口8088
 
 ```bash
-java -jar target/security 0.0.1-SNAPSHOT.jar
+java -jar target/security-0.0.1-SNAPSHOT.jar
 ```
 
 #### 前端运行

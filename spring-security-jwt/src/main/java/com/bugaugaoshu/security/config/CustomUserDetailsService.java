@@ -34,7 +34,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 // 但是这样的话，只有后台服务启动后第一次登陆会有效
                 // 推出后第二次登陆会出现  Empty encoded password 的错误，导致无法登陆
                 // 这样写就不会出现这种问题了
-                // 因为在第一次验证后，用户的密码会被清除，导致第二次系统拿到的是空密码
+                // 因为在第一次验证后，用户的密码会被清除，导致第二次登陆系统拿到的是空密码
                 // 所以需要new一个对象或将原对象复制一份
                 // 这个解决方案来自 https://stackoverflow.com/questions/43007763/spring-security-encoded-password-gives-me-bad-credentials/43046195#43046195
                 return new User(userDetails.getUsername(), userDetails.getPassword(), userDetails.getAuthorities());

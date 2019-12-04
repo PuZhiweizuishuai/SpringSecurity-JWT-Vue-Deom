@@ -2,7 +2,6 @@ package com.bugaugaoshu.security.filter;
 
 import com.bugaugaoshu.security.config.TokenAuthenticationHelper;
 import com.bugaugaoshu.security.damain.ErrorDetails;
-import com.bugaugaoshu.security.exception.VerifyFailedException;
 import com.bugaugaoshu.security.model.LoginDetails;
 import com.bugaugaoshu.security.model.User;
 import com.bugaugaoshu.security.service.LoginCountService;

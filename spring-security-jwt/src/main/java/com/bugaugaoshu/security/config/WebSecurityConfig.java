@@ -1,14 +1,11 @@
 package com.bugaugaoshu.security.config;
 
-import com.bugaugaoshu.security.damain.ResultDetails;
 import com.bugaugaoshu.security.filter.JwtAuthenticationFilter;
 import com.bugaugaoshu.security.filter.JwtLoginFilter;
 import com.bugaugaoshu.security.service.LoginCountService;
 import com.bugaugaoshu.security.service.VerifyCodeService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -22,15 +19,11 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.util.WebUtils;
 
-import javax.servlet.http.Cookie;
-import java.io.PrintWriter;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.bugaugaoshu.security.config.TokenAuthenticationHelper.COOKIE_TOKEN;
+
 
 /**
  * @author Pu Zhiwei {@literal puzhiweipuzhiwei@foxmail.com}

@@ -1,6 +1,5 @@
 package com.bugaugaoshu.security.advice;
 
-import com.bugaugaoshu.security.cache.SystemDataCache;
 import com.bugaugaoshu.security.controller.AdminController;
 import com.bugaugaoshu.security.controller.HomeController;
 import com.bugaugaoshu.security.controller.UserController;

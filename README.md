@@ -38,7 +38,7 @@ mvn clean package
 **Then**
 
 ```bash
-java -jar target/security 0.0.1-SNAPSHOT.jar
+java -jar target/security-0.0.1-SNAPSHOT.jar
 ```
 
 **Run front end server**
