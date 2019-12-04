@@ -386,7 +386,7 @@ ps：其中的 verifyCodeService 与 loginCountService 方法与本文关系不�
 
 验证码异常需要继承 AuthenticationException 异常，
 
-![verifyCode](/login_duandian_3.png)
+![verifyCode](https://github.com/PuZhiweizuishuai/SpringSecurity-JWT-Vue-Deom/blob/master/doc/login_duandian_3.png)
 
 可以看到这是一个 Spring Security 各种异常的父类，写一个验证码异常类继承 AuthenticationException，然后直接将验证码异常抛出就好。
 
@@ -568,11 +568,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
 因为这个项目是一个 Demo,不涉及数据库部分，所以我选择了在内存中直接写入用户，打个断点我们就能知道种方式调用的是 Spring Security 的是 ProviderManager 这个方法，这种方法不方便我们抛出入用户名不存在或者其异常，它都会抛出 Bad Credentials 异常，不会提示其它错误,如下图所示。
 
-![断点1](/login_duandian.png)
+![断点1](https://github.com/PuZhiweizuishuai/SpringSecurity-JWT-Vue-Deom/blob/master/doc/login_duandian.png)
 
-![断点1](/login_duandian_1.png)
+![断点1](https://github.com/PuZhiweizuishuai/SpringSecurity-JWT-Vue-Deom/blob/master/doc/login_duandian_1.png)
 
-![断点1](/login_duandian_2.png)
+![断点1](https://github.com/PuZhiweizuishuai/SpringSecurity-JWT-Vue-Deom/blob/master/doc/login_duandian_2.png)
 
 
 Spring Security 为了安全考虑，会把所有的登陆异常全部归结为 Bad Credentials 异常，所以为了能抛出像用户名不存在的这种异常，如果采用 Spring Security 默认的登陆方式的话,可以采用像GitHub项目[Vhr](https://github.com/lenve/vhr/blob/41dcea34d3a220988e19c34ab88b2822d02c1be9/hrserver/src/main/java/org/sang/config/WebSecurityConfig.java#L58)里的这种处理方式，但是因为这个项目使用 Jwt 替换掉了默认的登陆方式，想要实现详细的异常信息抛出就比较复杂了，我找了好久也没找到比较简单且合适的方法。如果你有好的方法，欢迎分享。
