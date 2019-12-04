@@ -36,7 +36,7 @@ public class JwtLoginFilter extends AbstractAuthenticationProcessingFilter {
     private final LoginCountService loginCountService;
 
     /**
-     * @param defaultFilterProcessesUrl 默认要过滤的地址
+     * @param defaultFilterProcessesUrl 配置要过滤的地址，即登陆地址
      * @param authenticationManager 认证管理器，校验身份时会用到
      * @param loginCountService */
     public JwtLoginFilter(String defaultFilterProcessesUrl, AuthenticationManager authenticationManager,

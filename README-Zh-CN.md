@@ -294,7 +294,7 @@ public class JwtLoginFilter extends AbstractAuthenticationProcessingFilter {
     private final LoginCountService loginCountService;
 
     /**
-     * @param defaultFilterProcessesUrl 默认要过滤的地址
+     * @param defaultFilterProcessesUrl 配置要过滤的地址，即登陆地址
      * @param authenticationManager 认证管理器，校验身份时会用到
      * @param loginCountService */
     public JwtLoginFilter(String defaultFilterProcessesUrl, AuthenticationManager authenticationManager,
@@ -566,7 +566,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 首先说 csrf 的问题：我看了看网上有很多 Spring Security 的教程，都会将 `.csrf()`设置为 `.disable()` ,这种设置虽然方便，但是不够安全，忽略了使用安全框架的初衷所以为了安全起见，我还是开启了这个功能，顺便学习一下如何使用 XSRF-TOKEN 
 
 
-因为这个项目是一个 Demo,不涉及数据库部分，所以我选择了在内存中直接写入用户，打个断点我们就能知道种方式调用的是 Spring Security 的是 ProviderManager 这个方法，这种方法不方便我们抛出入用户名不存在或者其异常，它都会抛出 Bad Credentials 异常，不会提示其它错误,如下图所示。
+因为这个项目是一个 Demo,不涉及数据库部分，所以我选择了在内存中直接写入用户，网上的向内存中写入用户如上代码注释部分，这样写虽然简单，但是有一些问题，在打个断点我们就能知道种方式调用的是 Spring Security 的是 ProviderManager 这个方法，这种方法不方便我们抛出入用户名不存在或者其异常，它都会抛出 Bad Credentials 异常，不会提示其它错误,如下图所示。
 
 ![断点1](https://github.com/PuZhiweizuishuai/SpringSecurity-JWT-Vue-Deom/blob/master/doc/login_duandian.png)
 
@@ -575,7 +575,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 ![断点1](https://github.com/PuZhiweizuishuai/SpringSecurity-JWT-Vue-Deom/blob/master/doc/login_duandian_2.png)
 
 
-Spring Security 为了安全考虑，会把所有的登陆异常全部归结为 Bad Credentials 异常，所以为了能抛出像用户名不存在的这种异常，如果采用 Spring Security 默认的登陆方式的话,可以采用像GitHub项目[Vhr](https://github.com/lenve/vhr/blob/41dcea34d3a220988e19c34ab88b2822d02c1be9/hrserver/src/main/java/org/sang/config/WebSecurityConfig.java#L58)里的这种处理方式，但是因为这个项目使用 Jwt 替换掉了默认的登陆方式，想要实现详细的异常信息抛出就比较复杂了，我找了好久也没找到比较简单且合适的方法。如果你有好的方法，欢迎分享。
+Spring Security 为了安全考虑，会把所有的登陆异常全部归结为 Bad Credentials 异常，所以为了能抛出像用户名不存在的这种异常，如果采用 Spring Security 默认的登陆方式的话,可以采用像[GitHub项目Vhr](https://github.com/lenve/vhr/blob/41dcea34d3a220988e19c34ab88b2822d02c1be9/hrserver/src/main/java/org/sang/config/WebSecurityConfig.java#L58)里的这种处理方式，但是因为这个项目使用 Jwt 替换掉了默认的登陆方式，想要实现详细的异常信息抛出就比较复杂了，我找了好久也没找到比较简单且合适的方法。如果你有好的方法，欢迎分享。
 
 最后我的解决方案是使用 Spring Security 的 DaoAuthenticationProvider 这个类来成为认证提供者，这个类实现了 AbstractUserDetailsAuthenticationProvider 这一个抽象的用户详细信息身份验证功能，查看注释我们可以知道 AbstractUserDetailsAuthenticationProvider 提供了 A base AuthenticationProvider that allows subclasses to override and work with UserDetails objects. The class is designed to respond to UsernamePasswordAuthenticationToken authentication requests.（允许子类重写和使用UserDetails对象的基本身份验证提供程序。该类旨在响应UsernamePasswordAuthenticationToken身份验证请求。）
 
