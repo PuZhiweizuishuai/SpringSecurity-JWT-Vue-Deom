@@ -370,15 +370,13 @@ public class JwtLoginFilter extends AbstractAuthenticationProcessingFilter {
 
 这个类主要有以下几个作用
 
-1. 自定义 JwtLoginFilter 继承自 AbstractAuthenticationProcessingFilter，并实现其中的三个默认方法。
+1. 自定义 JwtLoginFilter 继承自 AbstractAuthenticationProcessingFilter，并实现其中的三个默认方法，其中的 defaultFilterProcessesUrl 变量就是我们需要设置的登陆路径
 
 2. attemptAuthentication方法中，我们从登录参数中提取出用户名密码，然后调用AuthenticationManager.authenticate()方法去进行自动校验。
 
-3. 第二步如果校验成功，就会来到successfulAuthentication回调中，在successfulAuthentication方法中，将用户角色遍历然后用一个 , 连接起来，然后再利用Jwts去生成token，按照代码的顺序，
+3. 第二步如果校验成功，就会来到successfulAuthentication回调中，在successfulAuthentication方法中，使用之前已经写好的 addAuthentication 来生成 token，并使用 Http Only 的 cookie 写出到客户端。
 
-4. 生成过程一共配置了四个参数，分别是用户角色、主题、过期时间以及加密算法和密钥，然后将生成的token写出到客户端。
-
-5. 第二步如果校验失败就会来到unsuccessfulAuthentication方法中，在这个方法中返回一个错误提示给客户端即可。
+4. 第二步如果校验失败就会来到unsuccessfulAuthentication方法中，在这个方法中返回一个错误提示给客户端即可。
 
 ps：其中的 verifyCodeService 与 loginCountService 方法与本文关系不大，其中的代码实现请看源码
 
@@ -622,7 +620,126 @@ public class CustomUserDetailsService implements UserDetailsService {
 
 UserDetailsService 这个接口就是 Spring Security 为其它的数据访问策略做支持的。
 
-#### 未完待续
+至此，一个基本的 Spring Security + JWT 登陆的后端就完成了，你可以写几个 controller 然后用 postman 测试功能了。
+
+其它部分的代码因为比较简单，你可以参照源码自行实现你需要的功能，
+
+
+### 前端搭建
+
+创建 Vue 项目的方式网上有很多，此处也不再赘述，我只说一点，过去 Vue 项目创建完成后，在项目目录下会生成一个 config 文件夹，用来存放 vue 的配置，但现在默认创建的项目是不会生成这个文件夹的，需要你手动在项目根目录下创建 vue.config.js 作为配置文件。
+
+此处请参考：[Vue CLI 官方文档，配置参考部分](https://cli.vuejs.org/zh/config/#配置参考)
+
+附：[使用 Vue CIL 创建 Vue 项目](https://cli.vuejs.org/zh/guide/creating-a-project.html#vue-create)
+
+
+#### 依赖包
+
+前后端数据传递我使用了更为简单的 [fetch](https://developer.mozilla.org/zh-CN/docs/Web/API/Fetch_API) api, 当然你也可以选择兼容性更加好的 `axios`
+
+Ui 为 [ElementUI](https://element.eleme.io/)
+
+为了获取 XSRF-TOKEN，还需要 VueCookies
+
+最后为了在项目的首页展示介绍，我还引入了 [mavonEditor](https://github.com/hinesboy/mavonEditor)，一个基于 vue 的 markdown 插件
+
+引入以上包之后，你与要修改 src 目录下的 main.js 文件如下。
+
+```JavaScript
+import Vue from 'vue'
+import App from './App.vue'
+import router from './router'
+import store from './store'
+import ElementUI from 'element-ui'
+import 'element-ui/lib/theme-chalk/index.css'
+import mavonEditor from 'mavon-editor';
+import 'mavon-editor/dist/css/index.css';
+import VueCookies from 'vue-cookies'
+import axios from 'axios'
+
+// 让ajax携带cookie
+axios.defaults.withCredentials=true;
+// 注册 axios 为全局变量
+Vue.prototype.$axios = axios
+// 使用 vue cookie
+Vue.use(VueCookies)
+Vue.config.productionTip = false
+// 使用 ElementUI 组件
+Vue.use(ElementUI)
+// markdown 解析编辑工具
+Vue.use(mavonEditor)
+// 后台服务地址
+Vue.prototype.SERVER_API_URL = "http://127.0.0.1:8088/api";
+
+
+new Vue({
+    router,
+    store,
+    render: h => h(App)
+}).$mount('#app')
+
+
+
+```
+
+
+#### 前端跨域配置
+
+在创建 vue.config.js 完成后，你需要在里面输入以下内容，用来完成 Vue 的跨域配置
+
+```JavaScript
+module.exports = {
+    // options...
+    devServer: {
+      proxy: {
+          '/api': {
+              target: 'http://127.0.0.1:8088',
+              changeOrigin: true,
+              ws: true,
+              pathRewrite:{
+                '^/api':'' 
+             }
+          }
+      }
+  }
+}
+```
+
+
+#### 一些注意事项
+
+页面设计这些没有什么可写的了，需要注意的一点就是在对后端服务器进行 POST，DELETE，PUT等操作时，请在请求头中带上 `"X-XSRF-TOKEN": this.$cookies.get('XSRF-TOKEN')`,如果不带，那么哪怕你登陆了，后台也会返回 403 异常的。
+
+` credentials: "include"` 这句也不能少，这是携带 Cookie 所必须的语句。如果不加这一句，等于没有携带 Cookie，也就等于没有登陆了。
+
+```JavaScript
+            deleteItem(data) {
+                fetch(this.SERVER_API_URL + "/admin/data/" + data.id, {
+                    headers: {
+                        "Content-Type": "application/json; charset=UTF-8",
+                        "X-XSRF-TOKEN": this.$cookies.get('XSRF-TOKEN')
+                    },
+                    method: "DELETE",
+                    credentials: "include"
+                }).then(response => response.json())
+                    .then(json => {
+                        if (json.status === 200) {
+                            this.systemDataList.splice(data.id, 1);
+                            this.$message({
+                                message: '删除成功',
+                                type: 'success'
+                            });
+                        } else {
+                            window.console.log(json);
+                            this.$message.error(json.message);
+                        }
+                    });
+            },
+```
+
+#### EDD
+
 
 ## 参考文档
 
